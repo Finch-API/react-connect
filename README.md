@@ -13,22 +13,34 @@ npm install --save react-finch-connect
 ## Usage
 
 ```jsx
-import React, { Component } from 'react'
+import React, { useState } from 'react';
+import { useFinchConnect } from 'react-finch-connect';
 
-import { useMyHook } from 'react-finch-connect'
+const App = () => {
+  const [code, setCode] = useState(null);
 
-const Example = () => {
-  const example = useMyHook()
+  const onSuccess = ({ code }) => setCode(code);
+  const onError = ({ errorMessage }) => console.error(errorMessage);
+  const onClose = () => console.log('User exited Finch Connect');
+
+  const { open } = useFinchConnect({
+    clientId: '<your-client-id>',
+    products: ['identity', 'employment', 'pay_statement', 'tax'],
+    onSuccess,
+    onError,
+    onClose,
+  });
+
   return (
-    <div>{example}</div>
-  )
-}
+    <div>
+      <header>
+        <p>Code: {code}</p>
+        <button type="button" onClick={() => open()}>
+          Open Finch Connect
+        </button>
+      </header>
+    </div>
+  );
+};
 ```
 
-## License
-
-MIT © [](https://github.com/)
-
----
-
-This hook is created using [create-react-hook](https://github.com/hermanya/create-react-hook).
