@@ -8,12 +8,20 @@ const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 const noop = () => {};
 
 export const useFinchConnect = (options = {}) => {
-  const { clientId, products = [], onSuccess = noop, onError = noop, onClose = noop } = options;
+  const {
+    clientId,
+    products = [],
+    payrollProvider = null,
+    onSuccess = noop,
+    onError = noop,
+    onClose = noop,
+  } = options;
 
   const _constructAuthUrl = (clientId, products) => {
     const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
 
     if (clientId) authUrl.searchParams.append('client_id', clientId);
+    if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
     authUrl.searchParams.append('products', products.join(' '));
     authUrl.searchParams.append('app_type', 'spa');
     authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);

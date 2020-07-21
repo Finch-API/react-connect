@@ -1,6 +1,6 @@
 # react-finch-connect
 
-> 
+>
 
 [![NPM](https://img.shields.io/npm/v/react-finch-connect.svg)](https://www.npmjs.com/package/react-finch-connect) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
@@ -25,6 +25,7 @@ const App = () => {
 
   const { open } = useFinchConnect({
     clientId: '<your-client-id>',
+    // payrollProvider: '<payroll-provider-id>',
     products: ['identity', 'employment', 'pay_statement', 'tax'],
     onSuccess,
     onError,
@@ -43,4 +44,3 @@ const App = () => {
   );
 };
 ```
-
