@@ -43,7 +43,7 @@ export const useFinchConnect = (options = {}) => {
     iframe.style.height = '100%';
     iframe.style.width = '100%';
     iframe.style.top = '0';
-    iframe.style.backgroundColor = 'white';
+    iframe.style.backgroundColor = 'none transparent';
     iframe.style.border = 'none';
     document.body.prepend(iframe);
     document.body.style.overflow = 'hidden';
