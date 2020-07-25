@@ -10,10 +10,10 @@ const App = () => {
   const onClose = () => console.log('User exited Finch Connect');
 
   const { open } = useFinchConnect({
-    clientId: 'c90b78c6-2151-4ca3-8fea-ccb708ffc5d9',
+    clientId: '<client-id>',
     // payrollProvider: '<payroll-provider-id>',
-    products: ['directory'],
-    mode: 'employer',
+    products: ['identity', 'employment', 'pay_statement', 'tax'],
+    mode: 'individual',
     onSuccess,
     onError,
     onClose,
