@@ -13,6 +13,7 @@ const App = () => {
     clientId: '<your-client-id>',
     // payrollProvider: '<payroll-provider-id>',
     products: ['identity', 'employment', 'pay_statement', 'tax'],
+    mode: 'individual',
     onSuccess,
     onError,
     onClose,

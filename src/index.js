@@ -11,6 +11,7 @@ export const useFinchConnect = (options = {}) => {
   const {
     clientId,
     products = [],
+    mode = 'individual',
     payrollProvider = null,
     onSuccess = noop,
     onError = noop,
@@ -25,6 +26,7 @@ export const useFinchConnect = (options = {}) => {
     authUrl.searchParams.append('products', products.join(' '));
     authUrl.searchParams.append('app_type', 'spa');
     authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
+    authUrl.searchParams.append('mode', mode);
 
     return authUrl.href;
   };
