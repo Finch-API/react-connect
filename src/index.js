@@ -11,7 +11,7 @@ export const useFinchConnect = (options = {}) => {
   const {
     clientId,
     products = [],
-    mode = 'individual',
+    mode = 'employer',
     payrollProvider = null,
     onSuccess = noop,
     onError = noop,
