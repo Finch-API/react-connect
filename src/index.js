@@ -7,6 +7,7 @@ const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
 const noop = () => {};
 
+// eslint-disable-next-line import/prefer-default-export
 export const useFinchConnect = (options = {}) => {
   const {
     clientId,
@@ -40,7 +41,7 @@ export const useFinchConnect = (options = {}) => {
     iframe.src = _constructAuthUrl(clientId, products);
     iframe.frameBorder = '0';
     iframe.id = FINCH_CONNECT_IFRAME_ID;
-    iframe.style.position = 'absolute';
+    iframe.style.position = 'fixed';
     iframe.style.zIndex = '999';
     iframe.style.height = '100%';
     iframe.style.width = '100%';
