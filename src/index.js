@@ -15,6 +15,7 @@ export const useFinchConnect = (options = {}) => {
     mode = 'employer',
     manual = false,
     payrollProvider = null,
+    sandbox = false,
     onSuccess = noop,
     onError = noop,
     onClose = noop,
@@ -30,6 +31,7 @@ export const useFinchConnect = (options = {}) => {
     authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
     authUrl.searchParams.append('mode', mode);
     if (manual) authUrl.searchParams.append('manual', manual);
+    if (sandbox) authUrl.searchParams.append('sandbox', sandbox);
 
     return authUrl.href;
   };

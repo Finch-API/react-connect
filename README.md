@@ -25,8 +25,9 @@ const App = () => {
 
   const { open } = useFinchConnect({
     clientId: '<your-client-id>',
-    // payrollProvider: '<payroll-provider-id>',
     products: ['company', 'directory'],
+    // payrollProvider: '<payroll-provider-id>',
+    // sandbox: true,
     onSuccess,
     onError,
     onClose,
