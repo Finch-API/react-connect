@@ -19,6 +19,7 @@ export const useFinchConnect = (options = {}) => {
     onSuccess = noop,
     onError = noop,
     onClose = noop,
+    zIndex = 999,
   } = options;
 
   const _constructAuthUrl = (clientId, products) => {
@@ -46,7 +47,7 @@ export const useFinchConnect = (options = {}) => {
     iframe.frameBorder = '0';
     iframe.id = FINCH_CONNECT_IFRAME_ID;
     iframe.style.position = 'fixed';
-    iframe.style.zIndex = '999';
+    iframe.style.zIndex = zIndex.toString();
     iframe.style.height = '100%';
     iframe.style.width = '100%';
     iframe.style.top = '0';
