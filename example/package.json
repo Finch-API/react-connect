@@ -5,11 +5,12 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@types/react": "^17.0.37",
     "prop-types": "^15.6.2",
     "react": "file:../node_modules/react",
     "react-dom": "^16.9.0",
-    "react-scripts": "^3.0.1",
-    "react-finch-connect": "file:.."
+    "react-finch-connect": "file:..",
+    "react-scripts": "^3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useFinchConnect } from 'react-finch-connect';
+import { useFinchConnect, SuccessEvent, ErrorEvent } from 'react-finch-connect';
 import './App.css';
 
 const App = () => {
-  const [code, setCode] = useState(null);
+  const [code, setCode] = useState<string>();
 
-  const onSuccess = ({ code }) => setCode(code);
-  const onError = ({ errorMessage }) => console.error(errorMessage);
+  const onSuccess = ({ code }: SuccessEvent) => setCode(code);
+  const onError = ({ errorMessage }: ErrorEvent) => console.error(errorMessage);
   const onClose = () => console.log('User exited Finch Connect');
 
   const { open } = useFinchConnect({
