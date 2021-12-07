@@ -1,13 +1,13 @@
 declare module 'react-finch-connect' {
-  export interface SuccessEvent {
+  export type SuccessEvent = {
     code: string;
-  }
+  };
 
-  export interface ErrorEvent {
+  export type ErrorEvent = {
     errorMessage: string;
-  }
+  };
 
-  export interface ConnectOptions {
+  export type ConnectOptions = {
     clientId: string;
     products?: string[];
     mode?: string;
@@ -18,7 +18,7 @@ declare module 'react-finch-connect' {
     onError?: (e: ErrorEvent) => void;
     onClose?: () => void;
     zIndex?: bigint | string;
-  }
+  };
 
   export function useFinchConnect(opts: ConnectOptions): { open: () => void };
 }
