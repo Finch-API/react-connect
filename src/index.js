@@ -43,7 +43,7 @@ export const useFinchConnect = (options = {}) => {
     }
 
     const iframe = document.createElement('iframe');
-    iframe.src = _constructAuthUrl(clientId, products);
+    iframe.src = _constructAuthUrl(clientId, products, sandbox);
     iframe.frameBorder = '0';
     iframe.id = FINCH_CONNECT_IFRAME_ID;
     iframe.style.position = 'fixed';
