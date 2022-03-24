@@ -22,7 +22,7 @@ export const useFinchConnect = (options = {}) => {
     zIndex = 999,
   } = options;
 
-  const _constructAuthUrl = (clientId, products) => {
+  const _constructAuthUrl = (clientId, products, sandbox) => {
     const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
 
     if (clientId) authUrl.searchParams.append('client_id', clientId);
