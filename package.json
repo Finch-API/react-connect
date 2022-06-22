@@ -1,6 +1,6 @@
 {
   "name": "react-finch-connect",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "",
   "author": "",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "predeploy": "cd example && npm install && npm run build"
   },
   "peerDependencies": {
-    "react": "^16.9.0"
+    "react": ">=16.9.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
