@@ -9,8 +9,7 @@
     "prop-types": "^15.6.2",
     "react": "file:../node_modules/react",
     "react-dom": "^16.9.0",
-    "react-finch-connect": "file:..",
-    "react-scripts": "^3.0.1"
+    "react-finch-connect": "file:.."
   },
   "scripts": {
     "start": "react-scripts start",
@@ -18,10 +17,19 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
   "browserslist": [
     ">0.2%",
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "react-scripts": "^5.0.1"
+  }
 }
