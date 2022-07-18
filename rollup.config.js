@@ -4,6 +4,7 @@ import dts from 'rollup-plugin-dts';
 import external from 'rollup-plugin-peer-deps-external';
 import resolve from 'rollup-plugin-node-resolve';
 import url from 'rollup-plugin-url';
+import replace from '@rollup/plugin-replace';
 
 import pkg from './package.json';
 
@@ -30,6 +31,9 @@ export default [
       }),
       resolve(),
       commonjs(),
+      replace({
+        SDK_VERSION: JSON.stringify(pkg.version), // has to be stringified somehow
+      }),
     ],
   },
   {
