@@ -33,6 +33,8 @@ export const useFinchConnect = (options = {}) => {
     authUrl.searchParams.append('mode', mode);
     if (manual) authUrl.searchParams.append('manual', manual);
     if (sandbox) authUrl.searchParams.append('sandbox', sandbox);
+    /* global SDK_VERSION */
+    if (SDK_VERSION) authUrl.searchParams.append('sdk_version', `react-${SDK_VERSION}`);
 
     return authUrl.href;
   };
