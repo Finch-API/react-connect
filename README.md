@@ -25,9 +25,13 @@ const App = () => {
 
   const { open } = useFinchConnect({
     clientId: '<your-client-id>',
+    // The below are only a few of Finch's product scopes, please check Finch's [documentation](https://developer.tryfinch.com/docs/reference/ZG9jOjMxOTg1NTI3-permissions) for the full list
     products: ['company', 'directory'],
+    // Check Finch's [documentation](https://developer.tryfinch.com/docs/reference/96f5be9e0ec1a-providers) for the full list of payroll provider IDs
     // payrollProvider: '<payroll-provider-id>',
-    // sandbox: true,
+    // sandbox: false,
+    // manual: false,
+    // z-index: 999,
     onSuccess,
     onError,
     onClose,
