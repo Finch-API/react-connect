@@ -31,7 +31,7 @@ const App = () => {
     // payrollProvider: '<payroll-provider-id>',
     // sandbox: false,
     // manual: false,
-    // z-index: 999,
+    // zIndex: 999,
     onSuccess,
     onError,
     onClose,
