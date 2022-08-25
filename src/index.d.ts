@@ -18,6 +18,7 @@ declare module 'react-finch-connect' {
     onError?: (e: ErrorEvent) => void;
     onClose?: () => void;
     zIndex?: bigint | string;
+    redirectUri: string;
   };
 
   export function useFinchConnect(opts: ConnectOptions): { open: () => void };
