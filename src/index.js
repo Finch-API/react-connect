@@ -20,6 +20,7 @@ export const useFinchConnect = (options = {}) => {
     onError = noop,
     onClose = noop,
     zIndex = 999,
+    redirectUri = DEFAULT_FINCH_REDIRECT_URI,
   } = options;
 
   const _constructAuthUrl = (clientId, products) => {
@@ -29,7 +30,7 @@ export const useFinchConnect = (options = {}) => {
     if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
     authUrl.searchParams.append('products', products.join(' '));
     authUrl.searchParams.append('app_type', 'spa');
-    authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
+    authUrl.searchParams.append('redirect_uri', redirectUri);
     authUrl.searchParams.append('mode', mode);
     if (manual) authUrl.searchParams.append('manual', manual);
     if (sandbox) authUrl.searchParams.append('sandbox', sandbox);
