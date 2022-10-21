@@ -14,6 +14,7 @@ declare module 'react-finch-connect' {
     manual?: boolean;
     payrollProvider?: string;
     sandbox?: boolean;
+    category?: string;
     onSuccess?: (e: SuccessEvent) => void;
     onError?: (e: ErrorEvent) => void;
     onClose?: () => void;

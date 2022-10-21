@@ -13,6 +13,7 @@ export const useFinchConnect = (options = {}) => {
     clientId,
     products = [],
     mode = 'employer',
+    category,
     manual = false,
     payrollProvider = null,
     sandbox = false,
@@ -27,6 +28,7 @@ export const useFinchConnect = (options = {}) => {
 
     if (clientId) authUrl.searchParams.append('client_id', clientId);
     if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
+    if (category) authUrl.searchParams.append('category', category);
     authUrl.searchParams.append('products', products.join(' '));
     authUrl.searchParams.append('app_type', 'spa');
     authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
