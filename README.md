@@ -2,19 +2,19 @@
 
 >
 
-[![NPM](https://img.shields.io/npm/v/react-finch-connect.svg)](https://www.npmjs.com/package/react-finch-connect) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![NPM](https://img.shields.io/npm/v/@tryfinch/react-connect)](https://www.npmjs.com/package/@tryfinch/react-connect) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Install
 
 ```bash
-npm install --save react-finch-connect
+npm install --save @tryfinch/react-connect
 ```
 
 ## Usage
 
 ```jsx
 import React, { useState } from 'react';
-import { useFinchConnect } from 'react-finch-connect';
+import { useFinchConnect } from '@tryfinch/react-connect';
 
 const App = () => {
   const [code, setCode] = useState(null);
