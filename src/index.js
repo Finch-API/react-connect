@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
@@ -22,10 +22,9 @@ export const useFinchConnect = (options = {}) => {
     onClose = noop,
     zIndex = 999,
   } = options;
-
   const [products, setProducts] = useState(initialProducts);
 
-  const _constructAuthUrl = (argClientId, argProducts) => {
+  const _constructAuthUrl = useCallback((argClientId, argProducts) => {
     const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
 
     if (argClientId) authUrl.searchParams.append('client_id', argClientId);
@@ -41,11 +40,11 @@ export const useFinchConnect = (options = {}) => {
     if (SDK_VERSION) authUrl.searchParams.append('sdk_version', `react-${SDK_VERSION}`);
 
     return authUrl.href;
-  };
+  });
 
-  const open = () => {
+  const open = useCallback(() => {
     if (document.getElementById(FINCH_CONNECT_IFRAME_ID)) {
-      return null;
+      return;
     }
 
     const iframe = document.createElement('iframe');
@@ -61,7 +60,7 @@ export const useFinchConnect = (options = {}) => {
     iframe.style.border = 'none';
     document.body.prepend(iframe);
     document.body.style.overflow = 'hidden';
-  };
+  }, [products]);
 
   const close = () => {
     const frameToRemove = document.getElementById(FINCH_CONNECT_IFRAME_ID);
