@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
@@ -11,7 +11,7 @@ const noop = () => {};
 export const useFinchConnect = (options = {}) => {
   const {
     clientId,
-    products = [],
+    products: initialProducts = [],
     mode = 'employer',
     category,
     manual = false,
@@ -23,13 +23,15 @@ export const useFinchConnect = (options = {}) => {
     zIndex = 999,
   } = options;
 
-  const _constructAuthUrl = (clientId, products) => {
+  const [products, setProducts] = useState(initialProducts);
+
+  const _constructAuthUrl = (argClientId, argProducts) => {
     const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
 
-    if (clientId) authUrl.searchParams.append('client_id', clientId);
+    if (argClientId) authUrl.searchParams.append('client_id', argClientId);
     if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
     if (category) authUrl.searchParams.append('category', category);
-    authUrl.searchParams.append('products', products.join(' '));
+    authUrl.searchParams.append('products', argProducts.join(' '));
     authUrl.searchParams.append('app_type', 'spa');
     authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
     authUrl.searchParams.append('mode', mode);
@@ -93,5 +95,6 @@ export const useFinchConnect = (options = {}) => {
 
   return {
     open,
+    updateProducts: setProducts,
   };
 };

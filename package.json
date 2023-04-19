@@ -1,6 +1,6 @@
 {
   "name": "@tryfinch/react-connect",
-  "version": "2.8.1",
+  "version": "2.9.0",
   "description": "Finch SDK for embedding Finch Connect in API React Single Page Applications (SPA)",
   "keywords": ["finch", "sdk", "payroll", "react", "oauth"],
   "homepage": "https://tryfinch.com/",

@@ -21,5 +21,8 @@ declare module 'react-finch-connect' {
     zIndex?: bigint | string;
   };
 
-  export function useFinchConnect(opts: ConnectOptions): { open: () => void };
+  export function useFinchConnect(opts: ConnectOptions): { 
+    open: () => void; 
+    updateProducts: React.Dispatch<string[]>; 
+  };
 }
