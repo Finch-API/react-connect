@@ -40,7 +40,33 @@ const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
-const noop = () => {};
+const constructAuthUrl = ({
+  clientId,
+  payrollProvider,
+  category,
+  products,
+  manual,
+  sandbox,
+}: Partial<ConnectOptions>) => {
+  const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
+
+  if (clientId) authUrl.searchParams.append('client_id', clientId);
+  if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
+  if (category) authUrl.searchParams.append('category', category);
+  authUrl.searchParams.append('products', (products ?? []).join(' '));
+  authUrl.searchParams.append('app_type', 'spa');
+  authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
+  authUrl.searchParams.append('mode', 'employer');
+  if (manual) authUrl.searchParams.append('manual', String(manual));
+  if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
+  if (SDK_VERSION) authUrl.searchParams.append('sdk_version', `react-${SDK_VERSION}`);
+
+  return authUrl.href;
+};
+
+const noop = () => {
+  // intentionall empty
+};
 
 const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
   category: null,
@@ -61,32 +87,29 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     clientId: '',
     ...DEFAULT_OPTIONS,
     ...options,
-
-  }
+  };
 
   const open: OpenFn = (overrides?: Partial<Pick<ConnectOptions, 'products'>>) => {
     const openOptions: ConnectOptions = {
       ...combinedOptions,
       ...overrides,
-    }
+    };
 
-    if (document.getElementById(FINCH_CONNECT_IFRAME_ID)) {
-      return null;
+    if (!document.getElementById(FINCH_CONNECT_IFRAME_ID)) {
+      const iframe = document.createElement('iframe');
+      iframe.src = constructAuthUrl(openOptions);
+      iframe.frameBorder = '0';
+      iframe.id = FINCH_CONNECT_IFRAME_ID;
+      iframe.style.position = 'fixed';
+      iframe.style.zIndex = openOptions.zIndex.toString();
+      iframe.style.height = '100%';
+      iframe.style.width = '100%';
+      iframe.style.top = '0';
+      iframe.style.backgroundColor = 'none transparent';
+      iframe.style.border = 'none';
+      document.body.prepend(iframe);
+      document.body.style.overflow = 'hidden';
     }
-
-    const iframe = document.createElement('iframe');
-    iframe.src = constructAuthUrl(openOptions);
-    iframe.frameBorder = '0';
-    iframe.id = FINCH_CONNECT_IFRAME_ID;
-    iframe.style.position = 'fixed';
-    iframe.style.zIndex = openOptions.zIndex.toString();
-    iframe.style.height = '100%';
-    iframe.style.width = '100%';
-    iframe.style.top = '0';
-    iframe.style.backgroundColor = 'none transparent';
-    iframe.style.border = 'none';
-    document.body.prepend(iframe);
-    document.body.style.overflow = 'hidden';
   };
 
   const close = () => {
@@ -100,7 +123,8 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
   useEffect(() => {
     function handleFinchAuth(event: FinchConnectPostMessage) {
       const handleFinchAuthSuccess = (code: string) => combinedOptions.onSuccess({ code });
-      const handleFinchAuthError = (error: string) => combinedOptions.onError({ errorMessage: error });
+      const handleFinchAuthError = (error: string) =>
+        combinedOptions.onError({ errorMessage: error });
       const handleFinchAuthClose = () => combinedOptions.onClose();
 
       if (!event.data) return;
@@ -122,29 +146,4 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
   return {
     open,
   };
-};
-
-const constructAuthUrl = ({
-  clientId,
-  payrollProvider,
-  category,
-  products,
-  manual,
-  sandbox,
-}: Partial<ConnectOptions>) => {
-  const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
-
-  if (clientId) authUrl.searchParams.append('client_id', clientId);
-  if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
-  if (category) authUrl.searchParams.append('category', category);
-  authUrl.searchParams.append('products', (products ?? []).join(' '));
-  authUrl.searchParams.append('app_type', 'spa');
-  authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
-  authUrl.searchParams.append('mode', 'employer');
-  if (manual) authUrl.searchParams.append('manual', String(manual));
-  if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
-  /* global SDK_VERSION */
-  if (SDK_VERSION) authUrl.searchParams.append('sdk_version', `react-${SDK_VERSION}`);
-
-  return authUrl.href;
 };
