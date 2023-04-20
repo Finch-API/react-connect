@@ -12,9 +12,7 @@ const commonPlugins = [
   url({ exclude: ['**/*.svg'] }),
   resolve(),
   commonjs(),
-  replace({
-    SDK_VERSION: JSON.stringify(pkg.version), // has to be stringified somehow
-  }),
+  replace({ SDK_VERSION: pkg.version }),
 ];
 
 export default [

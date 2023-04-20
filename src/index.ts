@@ -34,7 +34,6 @@ interface FinchConnectPostMessage {
   origin: string;
 }
 
-declare const SDK_VERSION: string;
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
@@ -59,7 +58,8 @@ const constructAuthUrl = ({
   authUrl.searchParams.append('mode', 'employer');
   if (manual) authUrl.searchParams.append('manual', String(manual));
   if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
-  if (SDK_VERSION) authUrl.searchParams.append('sdk_version', `react-${SDK_VERSION}`);
+  // replace with actual SDK version by rollup
+  authUrl.searchParams.append('sdk_version', 'react-SDK_VERSION');
 
   return authUrl.href;
 };
