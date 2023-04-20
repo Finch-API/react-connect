@@ -1,8 +1,14 @@
 {
   "name": "@tryfinch/react-connect",
-  "version": "2.8.1",
+  "version": "3.0.0",
   "description": "Finch SDK for embedding Finch Connect in API React Single Page Applications (SPA)",
-  "keywords": ["finch", "sdk", "payroll", "react", "oauth"],
+  "keywords": [
+    "finch",
+    "sdk",
+    "payroll",
+    "react",
+    "oauth"
+  ],
   "homepage": "https://tryfinch.com/",
   "author": "",
   "license": "MIT",
@@ -48,6 +54,7 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-typescript": "^11.1.0",
     "@testing-library/react-hooks": "^3.2.1",
     "babel-eslint": "^10.0.1",
     "cross-env": "^5.2.0",
@@ -75,6 +82,7 @@
     "rollup-plugin-dts": "^4.0.1",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
-    "rollup-plugin-url": "^2.1.0"
+    "rollup-plugin-url": "^2.1.0",
+    "typescript": "^4.9.5"
   }
 }
