@@ -7,45 +7,24 @@ import typescript from '@rollup/plugin-typescript';
 
 import pkg from './package.json';
 
-const commonPlugins = [
+const plugins = [
   external(),
   url({ exclude: ['**/*.svg'] }),
   resolve(),
   commonjs(),
   replace({ SDK_VERSION: pkg.version }),
+  typescript(),
 ];
 
 export default [
   {
     input: 'src/index.ts',
-    output: [
-      {
-        file: pkg.main,
-        format: 'cjs',
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      ...commonPlugins,
-      typescript({
-        module: 'CommonJS',
-      }),
-    ],
+    output: [{ file: pkg.main, format: 'cjs', sourcemap: true }],
+    plugins,
   },
   {
     input: 'src/index.ts',
-    output: [
-      {
-        file: pkg.module,
-        format: 'es',
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      ...commonPlugins,
-      typescript({
-        module: 'ESNext',
-      }),
-    ],
+    output: [{ file: pkg.module, format: 'es', sourcemap: true }],
+    plugins,
   },
 ];
