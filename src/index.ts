@@ -65,7 +65,7 @@ const constructAuthUrl = ({
 };
 
 const noop = () => {
-  // intentionall empty
+  // intentionally empty
 };
 
 const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
