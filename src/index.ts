@@ -54,7 +54,6 @@ const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
   zIndex: 999,
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
   if (!options.clientId) throw new Error('must specify clientId in options for useFinchConnect');
 
