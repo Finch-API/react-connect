@@ -44,7 +44,6 @@
     "react": "^16.9.0",
     "rollup": "^2.75.7",
     "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "typescript": "^4.9.5"
   }
