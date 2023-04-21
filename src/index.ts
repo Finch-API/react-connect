@@ -113,8 +113,8 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
   const close = () => {
     const frameToRemove = document.getElementById(FINCH_CONNECT_IFRAME_ID);
-    if (frameToRemove && frameToRemove.parentNode) {
-      frameToRemove.parentNode.removeChild(frameToRemove);
+    if (frameToRemove) {
+      frameToRemove.parentNode?.removeChild(frameToRemove);
       document.body.style.overflow = 'inherit';
     }
   };
