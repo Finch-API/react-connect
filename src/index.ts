@@ -23,13 +23,12 @@ export type ConnectOptions = {
 
 type OpenFn = (overrides?: Partial<Pick<ConnectOptions, 'products'>>) => void;
 
-// TODO(@aren55555): from Finch Connect figure out the structure of this message
 interface FinchConnectPostMessage {
   data: {
     name: string;
-    code: string;
-    error: string;
-    closed: unknown;
+    code?: string;
+    error?: string;
+    closed?: boolean;
   };
   origin: string;
 }
