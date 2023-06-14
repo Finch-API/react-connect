@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 export type SuccessEvent = {
   code: string;
+  state?: string;
 };
 
 export type ErrorEvent = {
@@ -12,6 +13,7 @@ export type ConnectOptions = {
   category: string | null;
   clientId: string;
   manual: boolean;
+  state: string | null;
   onSuccess: (e: SuccessEvent) => void;
   onError: (e: ErrorEvent) => void;
   onClose: () => void;
@@ -23,13 +25,26 @@ export type ConnectOptions = {
 
 type OpenFn = (overrides?: Partial<Pick<ConnectOptions, 'products'>>) => void;
 
+const POST_MESSAGE_NAME = 'finch-auth-message' as const;
+
+type FinchConnectAuthMessage = { name: typeof POST_MESSAGE_NAME } & (
+  | {
+      kind: 'closed';
+      closed: true;
+    }
+  | {
+      kind: 'success';
+      code: string;
+      state?: string;
+    }
+  | {
+      kind: 'error';
+      error: string;
+    }
+);
+
 interface FinchConnectPostMessage {
-  data: {
-    name: string;
-    code?: string;
-    error?: string;
-    closed?: boolean;
-  };
+  data: FinchConnectAuthMessage;
   origin: string;
 }
 
@@ -45,9 +60,9 @@ const constructAuthUrl = ({
   products,
   manual,
   sandbox,
+  state,
 }: Partial<ConnectOptions>) => {
   const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
-
   if (clientId) authUrl.searchParams.append('client_id', clientId);
   if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
   if (category) authUrl.searchParams.append('category', category);
@@ -57,6 +72,7 @@ const constructAuthUrl = ({
   authUrl.searchParams.append('mode', 'employer');
   if (manual) authUrl.searchParams.append('manual', String(manual));
   if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
+  if (state) authUrl.searchParams.append('state', state);
   // replace with actual SDK version by rollup
   authUrl.searchParams.append('sdk_version', 'react-SDK_VERSION');
 
@@ -76,6 +92,7 @@ const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
   payrollProvider: null,
   products: [],
   sandbox: false,
+  state: null,
   zIndex: 999,
 };
 
@@ -121,21 +138,34 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
   useEffect(() => {
     function handleFinchAuth(event: FinchConnectPostMessage) {
-      const handleFinchAuthSuccess = (code: string) => combinedOptions.onSuccess({ code });
-      const handleFinchAuthError = (error: string) =>
-        combinedOptions.onError({ errorMessage: error });
-      const handleFinchAuthClose = () => combinedOptions.onClose();
-
       if (!event.data) return;
       if (event.data.name !== FINCH_AUTH_MESSAGE_NAME) return;
       if (!event.origin.startsWith(BASE_FINCH_CONNECT_URI)) return;
 
-      const { code, error, closed } = event.data;
-
       close();
-      if (code) handleFinchAuthSuccess(code);
-      else if (error) handleFinchAuthError(error);
-      else if (closed) handleFinchAuthClose();
+
+      switch (event.data.kind) {
+        case 'closed':
+          combinedOptions.onClose();
+          break;
+        case 'error':
+          combinedOptions.onError({ errorMessage: event.data.error });
+          break;
+        case 'success':
+          combinedOptions.onSuccess({
+            code: event.data.code,
+            state: event.data.state,
+          });
+          break;
+        default: {
+          // This case should never happen, if it does it should be reported to us
+          combinedOptions.onError({
+            errorMessage: `Report to developers@tryfinch.com: unable to handle window.postMessage for:  ${JSON.stringify(
+              event.data
+            )}`,
+          });
+        }
+      }
     }
 
     window.addEventListener('message', handleFinchAuth);
