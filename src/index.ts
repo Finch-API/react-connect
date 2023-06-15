@@ -30,7 +30,6 @@ const POST_MESSAGE_NAME = 'finch-auth-message' as const;
 type FinchConnectAuthMessage = { name: typeof POST_MESSAGE_NAME } & (
   | {
       kind: 'closed';
-      closed: true;
     }
   | {
       kind: 'success';
