@@ -23,7 +23,7 @@ export type ConnectOptions = {
   zIndex: number;
 };
 
-type OpenFn = (overrides?: Partial<Pick<ConnectOptions, 'products'>>) => void;
+type OpenFn = (overrides?: Partial<Pick<ConnectOptions, 'products' | 'state'>>) => void;
 
 const POST_MESSAGE_NAME = 'finch-auth-message' as const;
 
