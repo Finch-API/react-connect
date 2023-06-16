@@ -1,32 +1,53 @@
 import React, { useState } from 'react';
-import { useFinchConnect, SuccessEvent, ErrorEvent } from 'react-finch-connect';
+import { useFinchConnect, SuccessEvent, ErrorEvent } from '@tryfinch/react-connect';
+
+import Result, { ResultContainer } from './Result';
+
 import './App.css';
 
 const App = () => {
-  const [code, setCode] = useState<string>();
+  const [sendState, setSendState] = useState<boolean>(false);
+  const [result, setResult] = useState<ResultContainer>();
 
-  const onSuccess = ({ code }: SuccessEvent) => setCode(code);
-  const onError = ({ errorMessage }: ErrorEvent) => console.error(errorMessage);
-  const onClose = () => console.log('User exited Finch Connect');
+  const onSuccess = (value: SuccessEvent) => setResult({ kind: 'success', value });
+  const onError = (value: ErrorEvent) => setResult({ kind: 'error', value });
+  const onClose = () => setResult({ kind: 'closed' });
 
   const { open } = useFinchConnect({
-    clientId: '<your-client-id>',
+    clientId: 'c90b78c6-2151-4ca3-8fea-ccb708ffc5d9',
     products: ['company', 'directory', 'individual', 'employment'],
-    // sandbox: false,
+    sandbox: true,
     // payrollProvider: '<payroll-provider-id>',
     onSuccess,
     onError,
     onClose,
   });
 
+  const submissionHandler: React.FormEventHandler<HTMLFormElement>  = (e) => {
+    e.preventDefault();
+    open({
+      ...(sendState ? { state: new Date().toISOString() } : undefined),
+    })
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>Code: {code}</p>
-        <button type="button" onClick={() => open()}>
-          Open Finch Connect
-        </button>
-      </header>
+    <div className="container">
+      <h2><a href="https://www.npmjs.com/package/@tryfinch/react-connect">@tryfinch/react-connect</a> Example App</h2>
+      <form className="actions" onSubmit={submissionHandler}>
+        <div className="row">
+          <label className="top-label">Include State:</label>
+          <input type="checkbox" checked={sendState} onChange={() => setSendState(prev => !prev)} />
+        </div>
+        <div className="row">
+          <button className="cta" type="submit">
+            Open Finch Connect
+          </button>
+        </div>
+      </form>
+      <div className="results">
+          { !result && <p>Complete a Finch Connect session and the success event will be displayed here</p> }
+          { result && <Result result={result} /> }
+      </div>
     </div>
   );
 };
