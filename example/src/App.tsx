@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import { useFinchConnect, SuccessEvent, ErrorEvent } from '@tryfinch/react-connect';
 
+import Result, { ResultContainer } from './Result';
+
 import './App.css';
 
 const App = () => {
   const [sendState, setSendState] = useState<boolean>(false);
-  const [successEvent, setSuccessEvent] = useState<SuccessEvent>();
+  const [result, setResult] = useState<ResultContainer>();
 
-  const onSuccess = (e: SuccessEvent) => setSuccessEvent(e);
-  const onError = ({ errorMessage }: ErrorEvent) => console.error(errorMessage);
-  const onClose = () => console.log('User exited Finch Connect');
+  const onSuccess = (value: SuccessEvent) => setResult({ kind: 'success', value });
+  const onError = (value: ErrorEvent) => setResult({ kind: 'error', value });
+  const onClose = () => setResult({ kind: 'closed' });
 
   const { open } = useFinchConnect({
-    clientId: '<your-client-id>',
+    clientId: 'c90b78c6-2151-4ca3-8fea-ccb708ffc5d9',
     products: ['company', 'directory', 'individual', 'employment'],
-    // sandbox: false,
+    sandbox: true,
     // payrollProvider: '<payroll-provider-id>',
     onSuccess,
     onError,
@@ -43,13 +45,9 @@ const App = () => {
         </div>
       </form>
       <div className="results">
-          { !successEvent && <p>Complete a Finch Connect session and the success event will be displayed here</p> }
-          { successEvent && <>
-            <p>Results:</p>
-            <pre>{ JSON.stringify(successEvent, null, 2) }</pre>
-          </> }
+          { !result && <p>Complete a Finch Connect session and the success event will be displayed here</p> }
+          { result && <Result result={result} /> }
       </div>
-        
     </div>
   );
 };
