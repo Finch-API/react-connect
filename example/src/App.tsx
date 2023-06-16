@@ -40,7 +40,7 @@ const App = () => {
         </div>
       </form>
       <div className="results">
-          { !successEvent && <p>Complete Finch Connect and the Results will be displayed here</p> }
+          { !successEvent && <p>Complete a Finch Connect session and the success event will be displayed here</p> }
           { successEvent && <>
             <p>Results:</p>
             <pre>{ JSON.stringify(successEvent, null, 2) }</pre>
