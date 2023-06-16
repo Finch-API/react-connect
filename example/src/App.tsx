@@ -21,20 +21,23 @@ const App = () => {
     onClose,
   });
 
-  const openFinchConnectClickHandler = () => open({
-    ...(sendState ? { state: new Date().toISOString() } : undefined),
-  });
+  const submissionHandler: React.FormEventHandler<HTMLFormElement>  = (e) => {
+    e.preventDefault();
+    open({
+      ...(sendState ? { state: new Date().toISOString() } : undefined),
+    })
+  };
 
   return (
     <div className="container">
       <h2><a href="https://www.npmjs.com/package/@tryfinch/react-connect">@tryfinch/react-connect</a> Example App</h2>
-      <form className="actions" onSubmit={openFinchConnectClickHandler}>
+      <form className="actions" onSubmit={submissionHandler}>
         <div className="row">
           <label className="top-label">Include State:</label>
           <input type="checkbox" checked={sendState} onChange={() => setSendState(prev => !prev)} />
         </div>
         <div className="row">
-          <button className="cta" type="button" onClick={openFinchConnectClickHandler}>
+          <button className="cta" type="submit">
             Open Finch Connect
           </button>
         </div>
