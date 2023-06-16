@@ -28,7 +28,7 @@ const App = () => {
   return (
     <div className="container">
       <h2><a href="https://www.npmjs.com/package/@tryfinch/react-connect">@tryfinch/react-connect</a> Example App</h2>
-      <form className="actions">
+      <form className="actions" onSubmit={openFinchConnectClickHandler}>
         <div className="row">
           <label className="top-label">Include State:</label>
           <input type="checkbox" checked={sendState} onChange={() => setSendState(prev => !prev)} />
