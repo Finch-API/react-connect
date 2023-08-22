@@ -23,7 +23,9 @@ export type ConnectOptions = {
   zIndex: number;
 };
 
-type OpenFn = (overrides?: Partial<Pick<ConnectOptions, 'products' | 'state'>>) => void;
+type OpenFn = (
+  overrides?: Partial<Pick<ConnectOptions, 'products' | 'state' | 'payrollProvider'>>
+) => void;
 
 const POST_MESSAGE_NAME = 'finch-auth-message' as const;
 
@@ -95,8 +97,18 @@ const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
   zIndex: 999,
 };
 
+let isUseFinchConnectInitialized = false;
+
 export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
   if (!options.clientId) throw new Error('must specify clientId in options for useFinchConnect');
+
+  if (isUseFinchConnectInitialized) {
+    console.error(
+      'One useFinchConnect hook has already been registered. Please ensure to only call useFinchConnect once to avoid your event callbacks getting called more than once. You can pass in override options to the open function if you so require.'
+    );
+  } else {
+    isUseFinchConnectInitialized = true;
+  }
 
   const combinedOptions: ConnectOptions = {
     clientId: '',
@@ -104,7 +116,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     ...options,
   };
 
-  const open: OpenFn = (overrides?: Partial<Pick<ConnectOptions, 'products'>>) => {
+  const open: OpenFn = (overrides) => {
     const openOptions: ConnectOptions = {
       ...combinedOptions,
       ...overrides,
@@ -168,7 +180,10 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     }
 
     window.addEventListener('message', handleFinchAuth);
-    return () => window.removeEventListener('message', handleFinchAuth);
+    return () => {
+      window.removeEventListener('message', handleFinchAuth);
+      isUseFinchConnectInitialized = false;
+    };
   }, [combinedOptions.onClose, combinedOptions.onError, combinedOptions.onSuccess]);
 
   return {
