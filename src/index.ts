@@ -19,7 +19,13 @@ export type ConnectOptions = {
   onClose: () => void;
   payrollProvider: string | null;
   products: string[];
-  sandbox: boolean;
+  sandbox:
+    | 'provider' /** This is to enable the new Provider Sandbox */
+    /**
+     * The old sandbox flag retained for backwards compatibility.
+     * It's defaults to the Provider Sandbox
+     */
+    | boolean;
   zIndex: number;
 };
 
