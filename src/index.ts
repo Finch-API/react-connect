@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export type SuccessEvent = {
   code: string;
@@ -107,14 +107,21 @@ let isUseFinchConnectInitialized = false;
 
 export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
   if (!options.clientId) throw new Error('must specify clientId in options for useFinchConnect');
+  const isHookMounted = useRef(false);
 
-  if (isUseFinchConnectInitialized) {
-    console.error(
-      'One useFinchConnect hook has already been registered. Please ensure to only call useFinchConnect once to avoid your event callbacks getting called more than once. You can pass in override options to the open function if you so require.'
-    );
-  } else {
-    isUseFinchConnectInitialized = true;
-  }
+  useEffect(() => {
+    if (!isHookMounted.current) {
+      if (isUseFinchConnectInitialized) {
+        console.error(
+          'One useFinchConnect hook has already been registered. Please ensure to only call useFinchConnect once to avoid your event callbacks getting called more than once. You can pass in override options to the open function if you so require.'
+        );
+      } else {
+        isUseFinchConnectInitialized = true;
+      }
+
+      isHookMounted.current = true;
+    }
+  }, []);
 
   const combinedOptions: ConnectOptions = {
     clientId: '',
