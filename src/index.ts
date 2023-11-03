@@ -57,7 +57,6 @@ interface FinchConnectPostMessage {
 
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
-const SDK_HOST_URL = window.location.origin;
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
@@ -78,7 +77,7 @@ const constructAuthUrl = ({
   authUrl.searchParams.append('app_type', 'spa');
   authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
   /** The host URL of the SDK. This is used to store the referrer for postMessage purposes */
-  authUrl.searchParams.append('sdk_host_url', SDK_HOST_URL);
+  authUrl.searchParams.append('sdk_host_url', window.location.origin);
   authUrl.searchParams.append('mode', 'employer');
   if (manual) authUrl.searchParams.append('manual', String(manual));
   if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
