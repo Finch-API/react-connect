@@ -57,7 +57,7 @@ interface FinchConnectPostMessage {
 
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
-const SDK_HOST_URL = document.referrer;
+const SDK_HOST_URL = window.location.origin;
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
