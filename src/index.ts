@@ -76,6 +76,8 @@ const constructAuthUrl = ({
   authUrl.searchParams.append('products', (products ?? []).join(' '));
   authUrl.searchParams.append('app_type', 'spa');
   authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
+  /** The host URL of the SDK. This is used to store the referrer for postMessage purposes */
+  authUrl.searchParams.append('sdk_host_url', window.location.origin);
   authUrl.searchParams.append('mode', 'employer');
   if (manual) authUrl.searchParams.append('manual', String(manual));
   if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
