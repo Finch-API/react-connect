@@ -9,6 +9,11 @@ export type ErrorEvent = {
   errorMessage: string;
 };
 
+export type Sandbox =
+  | 'finch' /** This is to enable the new Finch (simulated) Sandbox */
+  | 'provider' /** This is to enable the new Provider Sandbox */
+  | boolean /** This is the old sandbox flag retained for backwards compatibility */;
+
 export type ConnectOptions = {
   category: string | null;
   clientId: string;
@@ -19,13 +24,7 @@ export type ConnectOptions = {
   onClose: () => void;
   payrollProvider: string | null;
   products: string[];
-  sandbox:
-    | 'provider' /** This is to enable the new Provider Sandbox */
-    /**
-     * The old sandbox flag retained for backwards compatibility.
-     * It's defaults to the Provider Sandbox
-     */
-    | boolean;
+  sandbox: Sandbox;
   zIndex: number;
 };
 
