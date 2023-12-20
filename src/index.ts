@@ -26,6 +26,7 @@ export type ConnectOptions = {
   products: string[];
   sandbox: Sandbox;
   zIndex: number;
+  finchDevMode?: boolean;
 };
 
 type OpenFn = (
@@ -56,6 +57,10 @@ interface FinchConnectPostMessage {
 
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
+
+const DEV_FINCH_CONNECT_URI = 'http://localhost:3000';
+const DEV_DEFAULT_FINCH_REDIRECT_URI = 'http://localhost:4001';
+
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
@@ -67,14 +72,22 @@ const constructAuthUrl = ({
   manual,
   sandbox,
   state,
+  finchDevMode,
 }: Partial<ConnectOptions>) => {
-  const authUrl = new URL(`${BASE_FINCH_CONNECT_URI}/authorize`);
+  const canUseFinchDevMode = finchDevMode && window.location.hostname === 'localhost';
+
+  const authUrl = new URL(
+    `${canUseFinchDevMode ? DEV_FINCH_CONNECT_URI : BASE_FINCH_CONNECT_URI}/authorize`
+  );
   if (clientId) authUrl.searchParams.append('client_id', clientId);
   if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
   if (category) authUrl.searchParams.append('category', category);
   authUrl.searchParams.append('products', (products ?? []).join(' '));
   authUrl.searchParams.append('app_type', 'spa');
-  authUrl.searchParams.append('redirect_uri', DEFAULT_FINCH_REDIRECT_URI);
+  authUrl.searchParams.append(
+    'redirect_uri',
+    canUseFinchDevMode ? DEV_DEFAULT_FINCH_REDIRECT_URI : DEFAULT_FINCH_REDIRECT_URI
+  );
   /** The host URL of the SDK. This is used to store the referrer for postMessage purposes */
   authUrl.searchParams.append('sdk_host_url', window.location.origin);
   authUrl.searchParams.append('mode', 'employer');
@@ -102,6 +115,7 @@ const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
   sandbox: false,
   state: null,
   zIndex: 999,
+  finchDevMode: false,
 };
 
 let isUseFinchConnectInitialized = false;
