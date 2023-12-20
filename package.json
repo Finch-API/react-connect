@@ -1,6 +1,6 @@
 {
   "name": "@tryfinch/react-connect",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "Finch SDK for embedding Finch Connect in API React Single Page Applications (SPA)",
   "keywords": [
     "finch",

@@ -177,9 +177,14 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
   useEffect(() => {
     function handleFinchAuth(event: FinchConnectPostMessage) {
+      const canUseFinchDevMode =
+        combinedOptions.finchDevMode && window.location.hostname === 'localhost';
+
+      const CONNECT_URI = canUseFinchDevMode ? DEV_FINCH_CONNECT_URI : BASE_FINCH_CONNECT_URI;
+
       if (!event.data) return;
       if (event.data.name !== FINCH_AUTH_MESSAGE_NAME) return;
-      if (!event.origin.startsWith(BASE_FINCH_CONNECT_URI)) return;
+      if (!event.origin.startsWith(CONNECT_URI)) return;
 
       close();
 
