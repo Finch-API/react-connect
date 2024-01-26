@@ -27,6 +27,7 @@ const App = () => {
     products: ['company', 'directory'],
     // Check Finch's [documentation](https://developer.tryfinch.com/docs/reference/96f5be9e0ec1a-providers) for the full list of payroll provider IDs
     // payrollProvider: '<payroll-provider-id>',
+    // For `sandbox`, omit or use 'false' if in production. Use "finch" or "provider" for sandbox testing, depending on test plan. See Finch's [documentation](https://developer.tryfinch.com/implementation-guide/Test/Testing-Plan) for an overview of Finch and Provider sandboxes.
     // sandbox: false,
     // manual: false,
     // zIndex: 999,
