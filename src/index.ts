@@ -26,7 +26,10 @@ export type ConnectOptions = {
   products: string[];
   sandbox: Sandbox;
   zIndex: number;
-  finchDevMode?: boolean;
+  apiConfig?: {
+    connectUrl: string;
+    redirectUrl: string;
+  };
 };
 
 type OpenFn = (
@@ -58,9 +61,6 @@ interface FinchConnectPostMessage {
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
 
-const DEV_FINCH_CONNECT_URI = 'http://localhost:3000';
-const DEV_DEFAULT_FINCH_REDIRECT_URI = 'http://localhost:4001';
-
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
@@ -72,22 +72,18 @@ const constructAuthUrl = ({
   manual,
   sandbox,
   state,
-  finchDevMode,
+  apiConfig,
 }: Partial<ConnectOptions>) => {
-  const canUseFinchDevMode = finchDevMode && window.location.hostname === 'localhost';
+  const CONNECT_URL = apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
+  const REDIRECT_URL = apiConfig?.redirectUrl || DEFAULT_FINCH_REDIRECT_URI;
 
-  const authUrl = new URL(
-    `${canUseFinchDevMode ? DEV_FINCH_CONNECT_URI : BASE_FINCH_CONNECT_URI}/authorize`
-  );
+  const authUrl = new URL(`${CONNECT_URL}/authorize`);
   if (clientId) authUrl.searchParams.append('client_id', clientId);
   if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
   if (category) authUrl.searchParams.append('category', category);
   authUrl.searchParams.append('products', (products ?? []).join(' '));
   authUrl.searchParams.append('app_type', 'spa');
-  authUrl.searchParams.append(
-    'redirect_uri',
-    canUseFinchDevMode ? DEV_DEFAULT_FINCH_REDIRECT_URI : DEFAULT_FINCH_REDIRECT_URI
-  );
+  authUrl.searchParams.append('redirect_uri', REDIRECT_URL);
   /** The host URL of the SDK. This is used to store the referrer for postMessage purposes */
   authUrl.searchParams.append('sdk_host_url', window.location.origin);
   authUrl.searchParams.append('mode', 'employer');
@@ -115,7 +111,6 @@ const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
   sandbox: false,
   state: null,
   zIndex: 999,
-  finchDevMode: false,
 };
 
 let isUseFinchConnectInitialized = false;
@@ -177,14 +172,11 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
   useEffect(() => {
     function handleFinchAuth(event: FinchConnectPostMessage) {
-      const canUseFinchDevMode =
-        combinedOptions.finchDevMode && window.location.hostname === 'localhost';
-
-      const CONNECT_URI = canUseFinchDevMode ? DEV_FINCH_CONNECT_URI : BASE_FINCH_CONNECT_URI;
+      const CONNECT_URL = combinedOptions.apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
 
       if (!event.data) return;
       if (event.data.name !== FINCH_AUTH_MESSAGE_NAME) return;
-      if (!event.origin.startsWith(CONNECT_URI)) return;
+      if (!event.origin.startsWith(CONNECT_URL)) return;
 
       close();
 
