@@ -24,6 +24,7 @@ export type ConnectOptions = {
   onClose: () => void;
   payrollProvider: string | null;
   products: string[];
+  clientName?: string;
   sandbox: Sandbox;
   zIndex: number;
   apiConfig?: {
@@ -33,7 +34,7 @@ export type ConnectOptions = {
 };
 
 type OpenFn = (
-  overrides?: Partial<Pick<ConnectOptions, 'products' | 'state' | 'payrollProvider'>>
+  overrides?: Partial<Pick<ConnectOptions, 'products' | 'state' | 'payrollProvider' | 'clientName'>>
 ) => void;
 
 const POST_MESSAGE_NAME = 'finch-auth-message' as const;
@@ -72,6 +73,7 @@ const constructAuthUrl = ({
   manual,
   sandbox,
   state,
+  clientName,
   apiConfig,
 }: Partial<ConnectOptions>) => {
   const CONNECT_URL = apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
@@ -81,6 +83,7 @@ const constructAuthUrl = ({
   if (clientId) authUrl.searchParams.append('client_id', clientId);
   if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
   if (category) authUrl.searchParams.append('category', category);
+  if (clientName) authUrl.searchParams.append('client_name', clientName);
   authUrl.searchParams.append('products', (products ?? []).join(' '));
   authUrl.searchParams.append('app_type', 'spa');
   authUrl.searchParams.append('redirect_uri', REDIRECT_URL);
@@ -108,6 +111,7 @@ const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
   onClose: noop,
   payrollProvider: null,
   products: [],
+  clientName: undefined,
   sandbox: false,
   state: null,
   zIndex: 999,
