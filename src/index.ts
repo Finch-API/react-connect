@@ -87,7 +87,7 @@ const constructAuthUrl = (connectOptions: ConnectOptions) => {
 
   if ('sessionId' in connectOptions) {
     const { sessionId, products } = connectOptions;
-    authUrl.searchParams.append('session_id', sessionId);
+    authUrl.searchParams.append('session', sessionId);
     if (products) authUrl.searchParams.append('products', products.join(' '));
   } else {
     const {
