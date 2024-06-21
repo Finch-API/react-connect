@@ -5,6 +5,7 @@ type HasKey<T, K extends PropertyKey> = T extends Record<K, unknown> ? T : never
 export type SuccessEvent = {
   code: string;
   state?: string;
+  idpRedirectUri?: string;
 };
 
 export type ErrorEvent = {
@@ -59,6 +60,7 @@ type FinchConnectAuthMessage = { name: typeof POST_MESSAGE_NAME } & (
       kind: 'success';
       code: string;
       state?: string;
+      idpRedirectUri?: string;
     }
   | {
       kind: 'error';
@@ -233,6 +235,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
           combinedOptions.onSuccess({
             code: event.data.code,
             state: event.data.state,
+            idpRedirectUri: event.data.idpRedirectUri,
           });
           break;
         default: {
