@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+type HasKey<T, K extends PropertyKey> = T extends Record<K, unknown> ? T : never;
+
 export type SuccessEvent = {
   code: string;
   state?: string;
@@ -14,18 +16,11 @@ export type Sandbox =
   | 'provider' /** This is to enable the new Provider Sandbox */
   | boolean /** This is the old sandbox flag retained for backwards compatibility */;
 
-export type ConnectOptions = {
-  category: string | null;
-  clientId: string;
-  manual: boolean;
+type BaseConnectOptions = {
   state: string | null;
   onSuccess: (e: SuccessEvent) => void;
   onError: (e: ErrorEvent) => void;
   onClose: () => void;
-  payrollProvider: string | null;
-  products: string[];
-  clientName?: string;
-  sandbox: Sandbox;
   zIndex: number;
   apiConfig?: {
     connectUrl: string;
@@ -33,9 +28,26 @@ export type ConnectOptions = {
   };
 };
 
-type OpenFn = (
-  overrides?: Partial<Pick<ConnectOptions, 'products' | 'state' | 'payrollProvider' | 'clientName'>>
-) => void;
+type ConnectOptionsWithSessionId = BaseConnectOptions & {
+  // Use this option if you have a Finch Connect sessionID from the IDP redirect flow
+  sessionId: string;
+  // Allow for overriding products for the session
+  products?: string[];
+};
+
+type ConnectOptionsWithClientId = BaseConnectOptions & {
+  category: string | null;
+  clientId: string;
+  manual: boolean;
+  payrollProvider: string | null;
+  products: string[];
+  clientName?: string;
+  sandbox: Sandbox;
+};
+
+export type ConnectOptions = ConnectOptionsWithSessionId | ConnectOptionsWithClientId;
+
+type OpenFn = (overrides?: Partial<ConnectOptions>) => void;
 
 const POST_MESSAGE_NAME = 'finch-auth-message' as const;
 
@@ -65,33 +77,43 @@ const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
-const constructAuthUrl = ({
-  clientId,
-  payrollProvider,
-  category,
-  products,
-  manual,
-  sandbox,
-  state,
-  clientName,
-  apiConfig,
-}: Partial<ConnectOptions>) => {
+const constructAuthUrl = (connectOptions: ConnectOptions) => {
+  const { state, apiConfig } = connectOptions;
+
   const CONNECT_URL = apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
   const REDIRECT_URL = apiConfig?.redirectUrl || DEFAULT_FINCH_REDIRECT_URI;
 
   const authUrl = new URL(`${CONNECT_URL}/authorize`);
-  if (clientId) authUrl.searchParams.append('client_id', clientId);
-  if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
-  if (category) authUrl.searchParams.append('category', category);
-  if (clientName) authUrl.searchParams.append('client_name', clientName);
-  authUrl.searchParams.append('products', (products ?? []).join(' '));
+
+  if ('sessionId' in connectOptions) {
+    const { sessionId, products } = connectOptions;
+    authUrl.searchParams.append('session_id', sessionId);
+    if (products) authUrl.searchParams.append('products', products.join(' '));
+  } else {
+    const {
+      clientId,
+      payrollProvider,
+      category,
+      products,
+      manual,
+      sandbox,
+      clientName,
+    } = connectOptions;
+
+    if (clientId) authUrl.searchParams.append('client_id', clientId);
+    if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
+    if (category) authUrl.searchParams.append('category', category);
+    if (clientName) authUrl.searchParams.append('client_name', clientName);
+    authUrl.searchParams.append('products', (products ?? []).join(' '));
+    if (manual) authUrl.searchParams.append('manual', String(manual));
+    if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
+  }
+
   authUrl.searchParams.append('app_type', 'spa');
   authUrl.searchParams.append('redirect_uri', REDIRECT_URL);
   /** The host URL of the SDK. This is used to store the referrer for postMessage purposes */
   authUrl.searchParams.append('sdk_host_url', window.location.origin);
   authUrl.searchParams.append('mode', 'employer');
-  if (manual) authUrl.searchParams.append('manual', String(manual));
-  if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
   if (state) authUrl.searchParams.append('state', state);
   // replace with actual SDK version by rollup
   authUrl.searchParams.append('sdk_version', 'react-SDK_VERSION');
@@ -103,24 +125,41 @@ const noop = () => {
   // intentionally empty
 };
 
-const DEFAULT_OPTIONS: Omit<ConnectOptions, 'clientId'> = {
-  category: null,
-  manual: false,
+const BASE_DEFAULTS = {
   onSuccess: noop,
   onError: noop,
   onClose: noop,
+  state: null,
+  zIndex: 999,
+};
+
+const DEFAULT_OPTIONS_WITH_CLIENT_ID: HasKey<ConnectOptions, 'clientId'> = {
+  ...BASE_DEFAULTS,
+  clientId: '',
+  category: null,
+  manual: false,
   payrollProvider: null,
   products: [],
   clientName: undefined,
   sandbox: false,
-  state: null,
-  zIndex: 999,
+};
+
+const DEFAULT_OPTIONS_WITH_SESSION_ID: HasKey<ConnectOptions, 'sessionId'> = {
+  ...BASE_DEFAULTS,
+  sessionId: '',
 };
 
 let isUseFinchConnectInitialized = false;
 
 export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
-  if (!options.clientId) throw new Error('must specify clientId in options for useFinchConnect');
+  if (!('sessionId' in options) && !('clientId' in options)) {
+    throw new Error('must specify either sessionId or clientId in options for useFinchConnect');
+  }
+
+  if ('sessionId' in options && 'clientId' in options) {
+    throw new Error('cannot specify both sessionId and clientId in options for useFinchConnect');
+  }
+
   const isHookMounted = useRef(false);
 
   useEffect(() => {
@@ -137,11 +176,10 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     }
   }, []);
 
-  const combinedOptions: ConnectOptions = {
-    clientId: '',
-    ...DEFAULT_OPTIONS,
-    ...options,
-  };
+  const combinedOptions: ConnectOptions =
+    'sessionId' in options
+      ? { ...DEFAULT_OPTIONS_WITH_SESSION_ID, ...options }
+      : { ...DEFAULT_OPTIONS_WITH_CLIENT_ID, ...options };
 
   const open: OpenFn = (overrides) => {
     const openOptions: ConnectOptions = {
