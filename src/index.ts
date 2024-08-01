@@ -43,6 +43,7 @@ type ConnectOptionsWithClientId = BaseConnectOptions & {
   payrollProvider: string | null;
   products: string[];
   clientName?: string;
+  connectionId?: string;
   sandbox: Sandbox;
 };
 
@@ -100,12 +101,14 @@ const constructAuthUrl = (connectOptions: ConnectOptions) => {
       manual,
       sandbox,
       clientName,
+      connectionId,
     } = connectOptions;
 
     if (clientId) authUrl.searchParams.append('client_id', clientId);
     if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
     if (category) authUrl.searchParams.append('category', category);
     if (clientName) authUrl.searchParams.append('client_name', clientName);
+    if (connectionId) authUrl.searchParams.append('connection_id', connectionId);
     authUrl.searchParams.append('products', (products ?? []).join(' '));
     if (manual) authUrl.searchParams.append('manual', String(manual));
     if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
