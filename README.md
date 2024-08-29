@@ -18,7 +18,13 @@ const App = () => {
   const [code, setCode] = useState(null);
 
   const onSuccess = ({ code }) => setCode(code);
-  const onError = ({ errorMessage }) => console.error(errorMessage);
+  /**
+   * @param {string} errorMessage - The error message
+   * @param {'validation_error' | 'employer_error'} errorType - The type of error
+   * - 'validation_error': Finch Connect failed to open due to validation error
+   * - 'employer_connection_error': The errors employers see within the Finch Connect flow
+   */
+  const onError = ({ errorMessage, errorType }) => console.error(errorMessage, errorType);
   const onClose = () => console.log('User exited Finch Connect');
 
   const { open } = useFinchConnect({
