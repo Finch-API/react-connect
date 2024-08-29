@@ -8,8 +8,11 @@ export type SuccessEvent = {
   idpRedirectUri?: string;
 };
 
+type ErrorType = 'validation_error' | 'employer_connection_error';
+
 export type ErrorEvent = {
   errorMessage: string;
+  errorType?: ErrorType;
 };
 
 export type Sandbox =
@@ -51,7 +54,7 @@ export type ConnectOptions = ConnectOptionsWithSessionId | ConnectOptionsWithCli
 
 type OpenFn = (overrides?: Partial<ConnectOptions>) => void;
 
-const POST_MESSAGE_NAME = 'finch-auth-message' as const;
+const POST_MESSAGE_NAME = 'finch-auth-message-v2' as const;
 
 type FinchConnectAuthMessage = { name: typeof POST_MESSAGE_NAME } & (
   | {
@@ -65,7 +68,7 @@ type FinchConnectAuthMessage = { name: typeof POST_MESSAGE_NAME } & (
     }
   | {
       kind: 'error';
-      error: string;
+      error: { shouldClose: boolean; message: string; type: ErrorType };
     }
 );
 
@@ -78,7 +81,6 @@ const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
 const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
 
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
-const FINCH_AUTH_MESSAGE_NAME = 'finch-auth-message';
 
 const constructAuthUrl = (connectOptions: ConnectOptions) => {
   const { state, apiConfig } = connectOptions;
@@ -222,17 +224,22 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
       const CONNECT_URL = combinedOptions.apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
 
       if (!event.data) return;
-      if (event.data.name !== FINCH_AUTH_MESSAGE_NAME) return;
+      if (event.data.name !== POST_MESSAGE_NAME) return;
       if (!event.origin.startsWith(CONNECT_URL)) return;
 
-      close();
+      if (event.data.kind !== 'error') close();
 
       switch (event.data.kind) {
         case 'closed':
           combinedOptions.onClose();
           break;
         case 'error':
-          combinedOptions.onError({ errorMessage: event.data.error });
+          if (event.data.error?.shouldClose) close();
+
+          combinedOptions.onError({
+            errorMessage: event.data.error?.message,
+            errorType: event.data.error?.type,
+          });
           break;
         case 'success':
           combinedOptions.onSuccess({
