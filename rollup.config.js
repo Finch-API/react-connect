@@ -4,17 +4,19 @@ import typescript from '@rollup/plugin-typescript';
 
 import pkg from './package.json';
 
-const plugins = [external(), replace({ SDK_VERSION: pkg.version }), typescript()];
+const plugins = [
+  external(),
+  replace({ SDK_VERSION: pkg.version }),
+  typescript({ sourceRoot: '.' }),
+];
 
 export default [
   {
     input: 'src/index.ts',
-    output: [{ file: pkg.main, format: 'cjs', sourcemap: true }],
-    plugins,
-  },
-  {
-    input: 'src/index.ts',
-    output: [{ file: pkg.module, format: 'es', sourcemap: true }],
+    output: [
+      { file: pkg.main, format: 'cjs', sourcemap: true },
+      { file: pkg.module, format: 'es', sourcemap: true },
+    ],
     plugins,
   },
 ];
