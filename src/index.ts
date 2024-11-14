@@ -206,6 +206,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
       iframe.style.top = '0';
       iframe.style.backgroundColor = 'none transparent';
       iframe.style.border = 'none';
+      iframe.allow = 'clipboard-write; clipboard-read';
       document.body.prepend(iframe);
       document.body.style.overflow = 'hidden';
     }
