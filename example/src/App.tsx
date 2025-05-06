@@ -15,7 +15,6 @@ const App = () => {
 
   const { open } = useFinchConnect({
     sessionId: '<your-session-id>',
-    products: ['company', 'directory', 'individual', 'employment'],
     // zIndex: 999,
     // state: null,
     onSuccess,

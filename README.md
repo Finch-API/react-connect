@@ -30,8 +30,6 @@ const App = () => {
   const { open } = useFinchConnect({
     // Session ID is the result from the /connect/sessions API call. See the [doccumentation](https://developer.tryfinch.com/api-reference/connect/new-session#create-a-new-connect-session) about creating new connect sessions for further implementation details.
     sessionId: '<your-session-id>',
-    // The below are only a few of Finch's product scopes, please check Finch's [documentation](https://developer.tryfinch.com/docs/reference/ZG9jOjMxOTg1NTI3-permissions) for the full list
-    products: ['company', 'directory'],
     // zIndex: 999,
     // state: null,
     onSuccess,
