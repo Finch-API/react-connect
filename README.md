@@ -28,15 +28,12 @@ const App = () => {
   const onClose = () => console.log('User exited Finch Connect');
 
   const { open } = useFinchConnect({
-    clientId: '<your-client-id>',
+    // Session ID is the result from the /connect/sessions API call. See the [doccumentation](https://developer.tryfinch.com/api-reference/connect/new-session#create-a-new-connect-session) about creating new connect sessions for further implementation details.
+    sessionId: '<your-session-id>',
     // The below are only a few of Finch's product scopes, please check Finch's [documentation](https://developer.tryfinch.com/docs/reference/ZG9jOjMxOTg1NTI3-permissions) for the full list
     products: ['company', 'directory'],
-    // Check Finch's [documentation](https://developer.tryfinch.com/docs/reference/96f5be9e0ec1a-providers) for the full list of payroll provider IDs
-    // payrollProvider: '<payroll-provider-id>',
-    // For `sandbox`, omit or use 'false' if in production. Use "finch" or "provider" for sandbox testing, depending on test plan. See Finch's [documentation](https://developer.tryfinch.com/implementation-guide/Test/Testing-Plan) for an overview of Finch and Provider sandboxes.
-    // sandbox: false,
-    // manual: false,
     // zIndex: 999,
+    // state: null,
     onSuccess,
     onError,
     onClose,
