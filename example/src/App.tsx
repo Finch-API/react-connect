@@ -16,7 +16,6 @@ const App = () => {
   const { open } = useFinchConnect({
     sessionId: '<your-session-id>',
     // zIndex: 999,
-    // state: null,
     onSuccess,
     onError,
     onClose,

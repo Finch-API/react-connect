@@ -31,7 +31,6 @@ const App = () => {
     // Session ID is the result from the /connect/sessions API call. See the [doccumentation](https://developer.tryfinch.com/api-reference/connect/new-session#create-a-new-connect-session) about creating new connect sessions for further implementation details.
     sessionId: '<your-session-id>',
     // zIndex: 999,
-    // state: null,
     onSuccess,
     onError,
     onClose,
