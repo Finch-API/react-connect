@@ -14,12 +14,8 @@ const App = () => {
   const onClose = () => setResult({ kind: 'closed' });
 
   const { open } = useFinchConnect({
-    clientId: '<your-client-id>',
-    products: ['company', 'directory', 'individual', 'employment'],
-    // For 'sandbox`, omit or use 'false' if in production. Use "finch" or "provider" for sandbox testing, depending on test plan. See Finch's [documentation](https://developer.tryfinch.com/implementation-guide/Test/Testing-Plan) for an overview of Finch and Provider sandboxes.
-    // sandbox: false,
-    // payrollProvider: '<payroll-provider-id>',
-    //connectionId: '<connection-id>', // Used for reauth of an existing connection
+    sessionId: '<your-session-id>',
+    // zIndex: 999,
     onSuccess,
     onError,
     onClose,
