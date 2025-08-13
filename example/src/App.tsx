@@ -13,9 +13,10 @@ const App = () => {
   const onError = (value: ErrorEvent) => setResult({ kind: 'error', value });
   const onClose = () => setResult({ kind: 'closed' });
 
+  const sessionId = '';
+
   const { open } = useFinchConnect({
-    sessionId: '<your-session-id>',
-    // zIndex: 999,
+    sessionId,
     onSuccess,
     onError,
     onClose,
