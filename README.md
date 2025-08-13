@@ -27,10 +27,13 @@ const App = () => {
   const onError = ({ errorMessage, errorType }) => console.error(errorMessage, errorType);
   const onClose = () => console.log('User exited Finch Connect');
 
+  // Generate a session ID using the /connect/sessions endpoint on the Finch API
+  // See the docs here https://developer.tryfinch.com/api-reference/connect/new-session#create-a-new-connect-session
+  const sessionId = '';
+
   const { open } = useFinchConnect({
-    // Session ID is the result from the /connect/sessions API call. See the [doccumentation](https://developer.tryfinch.com/api-reference/connect/new-session#create-a-new-connect-session) about creating new connect sessions for further implementation details.
-    sessionId: '<your-session-id>',
-    // zIndex: 999,
+    sessionId,
+    // zIndex: 999, // Set this to change the z-index of the Connect iframe, defaults to 999
     onSuccess,
     onError,
     onClose,
