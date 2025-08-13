@@ -39,18 +39,7 @@ type ConnectOptionsWithSessionId = BaseConnectOptions & {
   products?: string[];
 };
 
-type ConnectOptionsWithClientId = BaseConnectOptions & {
-  category: string | null;
-  clientId: string;
-  manual: boolean;
-  payrollProvider: string | null;
-  products: string[];
-  clientName?: string;
-  connectionId?: string;
-  sandbox: Sandbox;
-};
-
-export type ConnectOptions = ConnectOptionsWithSessionId | ConnectOptionsWithClientId;
+export type ConnectOptions = ConnectOptionsWithSessionId;
 
 type OpenFn = (overrides?: Partial<ConnectOptions>) => void;
 
@@ -90,31 +79,9 @@ const constructAuthUrl = (connectOptions: ConnectOptions) => {
 
   const authUrl = new URL(`${CONNECT_URL}/authorize`);
 
-  if ('sessionId' in connectOptions) {
-    const { sessionId, products } = connectOptions;
-    authUrl.searchParams.append('session', sessionId);
-    if (products) authUrl.searchParams.append('products', products.join(' '));
-  } else {
-    const {
-      clientId,
-      payrollProvider,
-      category,
-      products,
-      manual,
-      sandbox,
-      clientName,
-      connectionId,
-    } = connectOptions;
-
-    if (clientId) authUrl.searchParams.append('client_id', clientId);
-    if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
-    if (category) authUrl.searchParams.append('category', category);
-    if (clientName) authUrl.searchParams.append('client_name', clientName);
-    if (connectionId) authUrl.searchParams.append('connection_id', connectionId);
-    authUrl.searchParams.append('products', (products ?? []).join(' '));
-    if (manual) authUrl.searchParams.append('manual', String(manual));
-    if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
-  }
+  const { sessionId, products } = connectOptions;
+  authUrl.searchParams.append('session', sessionId);
+  if (products) authUrl.searchParams.append('products', products.join(' '));
 
   authUrl.searchParams.append('app_type', 'spa');
   authUrl.searchParams.append('redirect_uri', REDIRECT_URL);
@@ -138,17 +105,6 @@ const BASE_DEFAULTS = {
   onClose: noop,
   state: null,
   zIndex: 999,
-};
-
-const DEFAULT_OPTIONS_WITH_CLIENT_ID: HasKey<ConnectOptions, 'clientId'> = {
-  ...BASE_DEFAULTS,
-  clientId: '',
-  category: null,
-  manual: false,
-  payrollProvider: null,
-  products: [],
-  clientName: undefined,
-  sandbox: false,
 };
 
 const DEFAULT_OPTIONS_WITH_SESSION_ID: HasKey<ConnectOptions, 'sessionId'> = {
@@ -183,10 +139,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     }
   }, []);
 
-  const combinedOptions: ConnectOptions =
-    'sessionId' in options
-      ? { ...DEFAULT_OPTIONS_WITH_SESSION_ID, ...options }
-      : { ...DEFAULT_OPTIONS_WITH_CLIENT_ID, ...options };
+  const combinedOptions: ConnectOptions = { ...DEFAULT_OPTIONS_WITH_SESSION_ID, ...options };
 
   const open: OpenFn = (overrides) => {
     const openOptions: ConnectOptions = {
