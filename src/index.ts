@@ -32,14 +32,9 @@ type BaseConnectOptions = {
   };
 };
 
-type ConnectOptionsWithSessionId = BaseConnectOptions & {
-  // Use this option if you have a Finch Connect sessionID from the IDP redirect flow
+export type ConnectOptions = BaseConnectOptions & {
   sessionId: string;
-  // Allow for overriding products for the session
-  products?: string[];
 };
-
-export type ConnectOptions = ConnectOptionsWithSessionId;
 
 type OpenFn = (overrides?: Partial<ConnectOptions>) => void;
 
@@ -79,9 +74,8 @@ const constructAuthUrl = (connectOptions: ConnectOptions) => {
 
   const authUrl = new URL(`${CONNECT_URL}/authorize`);
 
-  const { sessionId, products } = connectOptions;
+  const { sessionId } = connectOptions;
   authUrl.searchParams.append('session', sessionId);
-  if (products) authUrl.searchParams.append('products', products.join(' '));
 
   authUrl.searchParams.append('app_type', 'spa');
   authUrl.searchParams.append('redirect_uri', REDIRECT_URL);
