@@ -82,7 +82,7 @@ const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
 
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 
-const constructAuthUrl = (connectOptions: ConnectOptions) => {
+export const constructAuthUrl = (connectOptions: ConnectOptions) => {
   const { state, apiConfig } = connectOptions;
 
   const CONNECT_URL = apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
