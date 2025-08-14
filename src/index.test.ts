@@ -1,4 +1,4 @@
-import { constructAuthUrl } from './index';
+import { ConnectOptions, constructAuthUrl, validateConnectOptions } from './index';
 
 const NOOP_CALLBACKS = {
   onSuccess: jest.fn(),
@@ -96,6 +96,25 @@ describe('Finch React SDK', () => {
       const authUrl = constructAuthUrl(testOptions);
 
       expect(authUrl).toContain('state=test-state');
+    });
+  });
+
+  describe('validateConnectOptions', () => {
+    it('throws an error if no sessionId or clientId is provided', () => {
+      expect(() => validateConnectOptions({})).toThrow(
+        'must specify either sessionId or clientId in options for useFinchConnect'
+      );
+    });
+
+    it('throws an error if both sessionId and clientId are provided', () => {
+      expect(() =>
+        validateConnectOptions({
+          sessionId: 'test-session-id',
+          clientId: 'test-client-id',
+          state: null,
+          ...NOOP_CALLBACKS,
+        })
+      ).toThrow('cannot specify both sessionId and clientId in options for useFinchConnect');
     });
   });
 });

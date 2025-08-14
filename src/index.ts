@@ -128,6 +128,16 @@ export const constructAuthUrl = (connectOptions: ConnectOptions) => {
   return authUrl.href;
 };
 
+export const validateConnectOptions = (options: Partial<ConnectOptions>) => {
+  if (!('sessionId' in options) && !('clientId' in options)) {
+    throw new Error('must specify either sessionId or clientId in options for useFinchConnect');
+  }
+
+  if ('sessionId' in options && 'clientId' in options) {
+    throw new Error('cannot specify both sessionId and clientId in options for useFinchConnect');
+  }
+};
+
 const noop = () => {
   // intentionally empty
 };
@@ -159,13 +169,7 @@ const DEFAULT_OPTIONS_WITH_SESSION_ID: HasKey<ConnectOptions, 'sessionId'> = {
 let isUseFinchConnectInitialized = false;
 
 export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
-  if (!('sessionId' in options) && !('clientId' in options)) {
-    throw new Error('must specify either sessionId or clientId in options for useFinchConnect');
-  }
-
-  if ('sessionId' in options && 'clientId' in options) {
-    throw new Error('cannot specify both sessionId and clientId in options for useFinchConnect');
-  }
+  validateConnectOptions(options);
 
   const isHookMounted = useRef(false);
 
