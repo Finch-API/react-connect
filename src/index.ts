@@ -33,10 +33,7 @@ type BaseConnectOptions = {
 };
 
 export type ConnectOptionsWithSessionId = BaseConnectOptions & {
-  // Use this option if you have a Finch Connect sessionID from the IDP redirect flow
   sessionId: string;
-  // Allow for overriding products for the session
-  products?: string[];
 };
 
 export type ConnectOptionsWithClientId = BaseConnectOptions & {
@@ -50,7 +47,7 @@ export type ConnectOptionsWithClientId = BaseConnectOptions & {
   sandbox: Sandbox;
 };
 
-export type ConnectOptions = ConnectOptionsWithSessionId | ConnectOptionsWithClientId;
+export type ConnectOptions = ConnectOptionsWithSessionId;
 
 type OpenFn = (overrides?: Partial<ConnectOptions>) => void;
 
@@ -90,31 +87,8 @@ export const constructAuthUrl = (connectOptions: ConnectOptions) => {
 
   const authUrl = new URL(`${CONNECT_URL}/authorize`);
 
-  if ('sessionId' in connectOptions) {
-    const { sessionId, products } = connectOptions;
-    authUrl.searchParams.append('session', sessionId);
-    if (products) authUrl.searchParams.append('products', products.join(' '));
-  } else {
-    const {
-      clientId,
-      payrollProvider,
-      category,
-      products,
-      manual,
-      sandbox,
-      clientName,
-      connectionId,
-    } = connectOptions;
-
-    if (clientId) authUrl.searchParams.append('client_id', clientId);
-    if (payrollProvider) authUrl.searchParams.append('payroll_provider', payrollProvider);
-    if (category) authUrl.searchParams.append('category', category);
-    if (clientName) authUrl.searchParams.append('client_name', clientName);
-    if (connectionId) authUrl.searchParams.append('connection_id', connectionId);
-    authUrl.searchParams.append('products', (products ?? []).join(' '));
-    if (manual) authUrl.searchParams.append('manual', String(manual));
-    if (sandbox) authUrl.searchParams.append('sandbox', String(sandbox));
-  }
+  const { sessionId } = connectOptions;
+  authUrl.searchParams.append('session', sessionId);
 
   authUrl.searchParams.append('app_type', 'spa');
   authUrl.searchParams.append('redirect_uri', REDIRECT_URL);
@@ -129,12 +103,8 @@ export const constructAuthUrl = (connectOptions: ConnectOptions) => {
 };
 
 export const validateConnectOptions = (options: Partial<ConnectOptions>) => {
-  if (!('sessionId' in options) && !('clientId' in options)) {
-    throw new Error('must specify either sessionId or clientId in options for useFinchConnect');
-  }
-
-  if ('sessionId' in options && 'clientId' in options) {
-    throw new Error('cannot specify both sessionId and clientId in options for useFinchConnect');
+  if (!('sessionId' in options)) {
+    throw new Error('must specify a sessionId in options for useFinchConnect');
   }
 };
 
@@ -150,17 +120,6 @@ const BASE_DEFAULTS = {
   zIndex: 999,
 };
 
-const DEFAULT_OPTIONS_WITH_CLIENT_ID: HasKey<ConnectOptions, 'clientId'> = {
-  ...BASE_DEFAULTS,
-  clientId: '',
-  category: null,
-  manual: false,
-  payrollProvider: null,
-  products: [],
-  clientName: undefined,
-  sandbox: false,
-};
-
 const DEFAULT_OPTIONS_WITH_SESSION_ID: HasKey<ConnectOptions, 'sessionId'> = {
   ...BASE_DEFAULTS,
   sessionId: '',
@@ -170,8 +129,6 @@ let isUseFinchConnectInitialized = false;
 
 export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
   validateConnectOptions(options);
-
-  const isUsingSessionId = 'sessionId' in options;
 
   const isHookMounted = useRef(false);
 
@@ -189,9 +146,10 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     }
   }, []);
 
-  const optionsMergedWithDefaults: ConnectOptions = isUsingSessionId
-    ? { ...DEFAULT_OPTIONS_WITH_SESSION_ID, ...options }
-    : { ...DEFAULT_OPTIONS_WITH_CLIENT_ID, ...options };
+  const optionsMergedWithDefaults: ConnectOptions = {
+    ...DEFAULT_OPTIONS_WITH_SESSION_ID,
+    ...options,
+  };
 
   const open: OpenFn = (overrides) => {
     const openOptions: ConnectOptions = {

@@ -46,31 +46,6 @@ describe('Finch React SDK', () => {
       expect(authUrl).not.toContain('connection_id=');
     });
 
-    it('adds the provided parameters when sessionId is not provided', () => {
-      const authUrl = constructAuthUrl({
-        clientId: 'test-client-id',
-        payrollProvider: 'test-payroll-provider',
-        category: 'test-category',
-        products: ['test-product'],
-        manual: true,
-        sandbox: true,
-        clientName: 'test-client-name',
-        connectionId: 'test-connection-id',
-        state: null,
-        ...NOOP_CALLBACKS,
-      });
-
-      expect(authUrl).toContain('client_id=test-client-id');
-      expect(authUrl).toContain('payroll_provider=test-payroll-provider');
-      expect(authUrl).toContain('category=test-category');
-      expect(authUrl).toContain('products=test-product');
-      expect(authUrl).toContain('manual=true');
-      expect(authUrl).toContain('sandbox=true');
-      expect(authUrl).toContain('client_name=test-client-name');
-      expect(authUrl).toContain('connection_id=test-connection-id');
-      expect(authUrl).not.toContain('session=');
-    });
-
     it('adds all the expected base parameters to the auth URL', () => {
       const expectedParameters = {
         app_type: 'spa',
@@ -100,21 +75,10 @@ describe('Finch React SDK', () => {
   });
 
   describe('validateConnectOptions', () => {
-    it('throws an error if no sessionId or clientId is provided', () => {
+    it('throws an error if no sessionId is provided', () => {
       expect(() => validateConnectOptions({})).toThrow(
-        'must specify either sessionId or clientId in options for useFinchConnect'
+        'must specify a sessionId in options for useFinchConnect'
       );
-    });
-
-    it('throws an error if both sessionId and clientId are provided', () => {
-      expect(() =>
-        validateConnectOptions({
-          sessionId: 'test-session-id',
-          clientId: 'test-client-id',
-          state: null,
-          ...NOOP_CALLBACKS,
-        })
-      ).toThrow('cannot specify both sessionId and clientId in options for useFinchConnect');
     });
   });
 });
