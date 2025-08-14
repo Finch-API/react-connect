@@ -32,14 +32,14 @@ type BaseConnectOptions = {
   };
 };
 
-type ConnectOptionsWithSessionId = BaseConnectOptions & {
+export type ConnectOptionsWithSessionId = BaseConnectOptions & {
   // Use this option if you have a Finch Connect sessionID from the IDP redirect flow
   sessionId: string;
   // Allow for overriding products for the session
   products?: string[];
 };
 
-type ConnectOptionsWithClientId = BaseConnectOptions & {
+export type ConnectOptionsWithClientId = BaseConnectOptions & {
   category: string | null;
   clientId: string;
   manual: boolean;
@@ -171,6 +171,8 @@ let isUseFinchConnectInitialized = false;
 export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
   validateConnectOptions(options);
 
+  const isUsingSessionId = 'sessionId' in options;
+
   const isHookMounted = useRef(false);
 
   useEffect(() => {
@@ -187,14 +189,13 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     }
   }, []);
 
-  const combinedOptions: ConnectOptions =
-    'sessionId' in options
-      ? { ...DEFAULT_OPTIONS_WITH_SESSION_ID, ...options }
-      : { ...DEFAULT_OPTIONS_WITH_CLIENT_ID, ...options };
+  const optionsMergedWithDefaults: ConnectOptions = isUsingSessionId
+    ? { ...DEFAULT_OPTIONS_WITH_SESSION_ID, ...options }
+    : { ...DEFAULT_OPTIONS_WITH_CLIENT_ID, ...options };
 
   const open: OpenFn = (overrides) => {
     const openOptions: ConnectOptions = {
-      ...combinedOptions,
+      ...optionsMergedWithDefaults,
       ...overrides,
     };
 
@@ -226,7 +227,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
   useEffect(() => {
     function handleFinchAuth(event: FinchConnectPostMessage) {
-      const CONNECT_URL = combinedOptions.apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
+      const CONNECT_URL = optionsMergedWithDefaults.apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
 
       if (!event.data) return;
       if (event.data.name !== POST_MESSAGE_NAME) return;
@@ -236,18 +237,18 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
       switch (event.data.kind) {
         case 'closed':
-          combinedOptions.onClose();
+          optionsMergedWithDefaults.onClose();
           break;
         case 'error':
           if (event.data.error?.shouldClose) close();
 
-          combinedOptions.onError({
+          optionsMergedWithDefaults.onError({
             errorMessage: event.data.error?.message,
             errorType: event.data.error?.type,
           });
           break;
         case 'success':
-          combinedOptions.onSuccess({
+          optionsMergedWithDefaults.onSuccess({
             code: event.data.code,
             state: event.data.state,
             idpRedirectUri: event.data.idpRedirectUri,
@@ -255,7 +256,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
           break;
         default: {
           // This case should never happen, if it does it should be reported to us
-          combinedOptions.onError({
+          optionsMergedWithDefaults.onError({
             errorMessage: `Report to developers@tryfinch.com: unable to handle window.postMessage for:  ${JSON.stringify(
               event.data
             )}`,
@@ -269,7 +270,11 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
       window.removeEventListener('message', handleFinchAuth);
       isUseFinchConnectInitialized = false;
     };
-  }, [combinedOptions.onClose, combinedOptions.onError, combinedOptions.onSuccess]);
+  }, [
+    optionsMergedWithDefaults.onClose,
+    optionsMergedWithDefaults.onError,
+    optionsMergedWithDefaults.onSuccess,
+  ]);
 
   return {
     open,

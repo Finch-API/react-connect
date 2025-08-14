@@ -1,4 +1,4 @@
-import { ConnectOptions, constructAuthUrl, validateConnectOptions } from './index';
+import { constructAuthUrl, validateConnectOptions } from './index';
 
 const NOOP_CALLBACKS = {
   onSuccess: jest.fn(),
