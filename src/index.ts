@@ -108,7 +108,7 @@ const DEFAULT_OPTIONS_WITH_SESSION_ID: HasKey<ConnectOptions, 'sessionId'> = {
 
 let isUseFinchConnectInitialized = false;
 
-export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
+export const useFinchConnect = (options: ConnectOptions): { open: OpenFn } => {
   if (!('sessionId' in options) && !('clientId' in options)) {
     throw new Error('must specify either sessionId or clientId in options for useFinchConnect');
   }
