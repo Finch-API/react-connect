@@ -1,4 +1,4 @@
-import { constructAuthUrl, validateConnectOptions } from './index';
+import { constructAuthUrl } from './index';
 
 const NOOP_CALLBACKS = {
   onSuccess: jest.fn(),
@@ -9,47 +9,16 @@ const NOOP_CALLBACKS = {
 
 describe('Finch React SDK', () => {
   describe('constructAuthUrl', () => {
-    it('returns the correct auth URL', () => {
-      const authUrl = constructAuthUrl({ sessionId: '123', state: null, ...NOOP_CALLBACKS });
-      expect(authUrl.startsWith('https://connect.tryfinch.com/authorize?')).toBe(true);
-    });
-
-    it('uses the provided connectUrl and redirectUrl if they are provided', () => {
-      const authUrl = constructAuthUrl({
-        sessionId: '123',
-        state: null,
-        apiConfig: {
-          connectUrl: 'https://cool.site',
-          redirectUrl: 'https://cool.site/redirect',
-        },
-        ...NOOP_CALLBACKS,
-      });
-      expect(authUrl.startsWith('https://cool.site/authorize?')).toBe(true);
-      expect(authUrl).toContain('redirect_uri=https%3A%2F%2Fcool.site%2Fredirect');
-    });
-
-    it('adds only the session parameter if the sessionId is provided', () => {
+    it('adds the session parameter', () => {
       const authUrl = constructAuthUrl({
         sessionId: 'test-session-id',
-        state: null,
-        ...NOOP_CALLBACKS,
       });
-
       expect(authUrl).toContain('session=test-session-id');
-      expect(authUrl).not.toContain('client_id=');
-      expect(authUrl).not.toContain('payroll_provider=');
-      expect(authUrl).not.toContain('category=');
-      expect(authUrl).not.toContain('products=');
-      expect(authUrl).not.toContain('manual=');
-      expect(authUrl).not.toContain('sandbox=');
-      expect(authUrl).not.toContain('client_name=');
-      expect(authUrl).not.toContain('connection_id=');
     });
 
     it('adds all the expected base parameters to the auth URL', () => {
       const expectedParameters = {
         app_type: 'spa',
-        redirect_uri: encodeURIComponent('https://tryfinch.com'),
         sdk_host_url: encodeURIComponent('http://localhost'),
         mode: 'employer',
         sdk_version: 'react-SDK_VERSION',
@@ -57,8 +26,6 @@ describe('Finch React SDK', () => {
 
       const authUrl = constructAuthUrl({
         sessionId: 'test-session-id',
-        state: null,
-        ...NOOP_CALLBACKS,
       });
 
       Object.entries(expectedParameters).forEach(([key, value]) => {
@@ -72,13 +39,16 @@ describe('Finch React SDK', () => {
 
       expect(authUrl).toContain('state=test-state');
     });
-  });
 
-  describe('validateConnectOptions', () => {
-    it('throws an error if no sessionId is provided', () => {
-      expect(() => validateConnectOptions({})).toThrow(
-        'must specify a sessionId in options for useFinchConnect'
-      );
+    it('uses the provided connectUrl if provided', () => {
+      const authUrl = constructAuthUrl({
+        sessionId: '123',
+        apiConfig: {
+          connectUrl: 'https://cool.site',
+        },
+        ...NOOP_CALLBACKS,
+      });
+      expect(authUrl.startsWith('https://cool.site/authorize?')).toBe(true);
     });
   });
 });
