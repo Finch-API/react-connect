@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-type HasKey<T, K extends PropertyKey> = T extends Record<K, unknown> ? T : never;
-
 export type SuccessEvent = {
   code: string;
   state?: string;
@@ -9,47 +7,29 @@ export type SuccessEvent = {
 };
 
 type ErrorType = 'validation_error' | 'employer_connection_error';
-
 export type ErrorEvent = {
   errorMessage: string;
   errorType?: ErrorType;
 };
 
-export type Sandbox =
-  | 'finch' /** This is to enable the new Finch (simulated) Sandbox */
-  | 'provider' /** This is to enable the new Provider Sandbox */
-  | boolean /** This is the old sandbox flag retained for backwards compatibility */;
+type ApiConfig = {
+  connectUrl: string;
+};
 
-type BaseConnectOptions = {
-  state: string | null;
+export type ConnectInitializeArgs = {
   onSuccess: (e: SuccessEvent) => void;
   onError: (e: ErrorEvent) => void;
   onClose: () => void;
-  zIndex: number;
-  apiConfig?: {
-    connectUrl: string;
-    redirectUrl: string;
-  };
+  apiConfig?: ApiConfig;
 };
 
-export type ConnectOptionsWithSessionId = BaseConnectOptions & {
+export type ConnectLaunchArgs = {
   sessionId: string;
+  state?: string;
+  zIndex?: number;
 };
 
-export type ConnectOptionsWithClientId = BaseConnectOptions & {
-  category: string | null;
-  clientId: string;
-  manual: boolean;
-  payrollProvider: string | null;
-  products: string[];
-  clientName?: string;
-  connectionId?: string;
-  sandbox: Sandbox;
-};
-
-export type ConnectOptions = ConnectOptionsWithSessionId;
-
-type OpenFn = (overrides?: Partial<ConnectOptions>) => void;
+type OpenFn = (args: ConnectLaunchArgs) => void;
 
 const POST_MESSAGE_NAME = 'finch-auth-message-v2' as const;
 
@@ -75,23 +55,24 @@ interface FinchConnectPostMessage {
 }
 
 const BASE_FINCH_CONNECT_URI = 'https://connect.tryfinch.com';
-const DEFAULT_FINCH_REDIRECT_URI = 'https://tryfinch.com';
 
 const FINCH_CONNECT_IFRAME_ID = 'finch-connect-iframe';
 
-export const constructAuthUrl = (connectOptions: ConnectOptions) => {
-  const { state, apiConfig } = connectOptions;
-
+export const constructAuthUrl = ({
+  sessionId,
+  state,
+  apiConfig,
+}: {
+  sessionId: string;
+  state?: string;
+  apiConfig?: ApiConfig;
+}) => {
   const CONNECT_URL = apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
-  const REDIRECT_URL = apiConfig?.redirectUrl || DEFAULT_FINCH_REDIRECT_URI;
 
   const authUrl = new URL(`${CONNECT_URL}/authorize`);
 
-  const { sessionId } = connectOptions;
   authUrl.searchParams.append('session', sessionId);
-
   authUrl.searchParams.append('app_type', 'spa');
-  authUrl.searchParams.append('redirect_uri', REDIRECT_URL);
   /** The host URL of the SDK. This is used to store the referrer for postMessage purposes */
   authUrl.searchParams.append('sdk_host_url', window.location.origin);
   authUrl.searchParams.append('mode', 'employer');
@@ -102,34 +83,9 @@ export const constructAuthUrl = (connectOptions: ConnectOptions) => {
   return authUrl.href;
 };
 
-export const validateConnectOptions = (options: Partial<ConnectOptions>) => {
-  if (!('sessionId' in options)) {
-    throw new Error('must specify a sessionId in options for useFinchConnect');
-  }
-};
-
-const noop = () => {
-  // intentionally empty
-};
-
-const BASE_DEFAULTS = {
-  onSuccess: noop,
-  onError: noop,
-  onClose: noop,
-  state: null,
-  zIndex: 999,
-};
-
-const DEFAULT_OPTIONS_WITH_SESSION_ID: HasKey<ConnectOptions, 'sessionId'> = {
-  ...BASE_DEFAULTS,
-  sessionId: '',
-};
-
 let isUseFinchConnectInitialized = false;
 
-export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenFn } => {
-  validateConnectOptions(options);
-
+export const useFinchConnect = (initializeArgs: ConnectInitializeArgs): { open: OpenFn } => {
   const isHookMounted = useRef(false);
 
   useEffect(() => {
@@ -146,24 +102,18 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
     }
   }, []);
 
-  const optionsMergedWithDefaults: ConnectOptions = {
-    ...DEFAULT_OPTIONS_WITH_SESSION_ID,
-    ...options,
-  };
-
-  const open: OpenFn = (overrides) => {
-    const openOptions: ConnectOptions = {
-      ...optionsMergedWithDefaults,
-      ...overrides,
-    };
-
+  const open: OpenFn = (launchArgs) => {
     if (!document.getElementById(FINCH_CONNECT_IFRAME_ID)) {
       const iframe = document.createElement('iframe');
-      iframe.src = constructAuthUrl(openOptions);
+      iframe.src = constructAuthUrl({
+        sessionId: launchArgs.sessionId,
+        state: launchArgs.state,
+        apiConfig: initializeArgs.apiConfig,
+      });
       iframe.frameBorder = '0';
       iframe.id = FINCH_CONNECT_IFRAME_ID;
       iframe.style.position = 'fixed';
-      iframe.style.zIndex = openOptions.zIndex.toString();
+      iframe.style.zIndex = launchArgs.zIndex?.toString() || '999';
       iframe.style.height = '100%';
       iframe.style.width = '100%';
       iframe.style.top = '0';
@@ -185,7 +135,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
   useEffect(() => {
     function handleFinchAuth(event: FinchConnectPostMessage) {
-      const CONNECT_URL = optionsMergedWithDefaults.apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
+      const CONNECT_URL = initializeArgs.apiConfig?.connectUrl || BASE_FINCH_CONNECT_URI;
 
       if (!event.data) return;
       if (event.data.name !== POST_MESSAGE_NAME) return;
@@ -195,18 +145,18 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
 
       switch (event.data.kind) {
         case 'closed':
-          optionsMergedWithDefaults.onClose();
+          initializeArgs.onClose();
           break;
         case 'error':
           if (event.data.error?.shouldClose) close();
 
-          optionsMergedWithDefaults.onError({
+          initializeArgs.onError({
             errorMessage: event.data.error?.message,
             errorType: event.data.error?.type,
           });
           break;
         case 'success':
-          optionsMergedWithDefaults.onSuccess({
+          initializeArgs.onSuccess({
             code: event.data.code,
             state: event.data.state,
             idpRedirectUri: event.data.idpRedirectUri,
@@ -214,7 +164,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
           break;
         default: {
           // This case should never happen, if it does it should be reported to us
-          optionsMergedWithDefaults.onError({
+          initializeArgs.onError({
             errorMessage: `Report to developers@tryfinch.com: unable to handle window.postMessage for:  ${JSON.stringify(
               event.data
             )}`,
@@ -228,11 +178,7 @@ export const useFinchConnect = (options: Partial<ConnectOptions>): { open: OpenF
       window.removeEventListener('message', handleFinchAuth);
       isUseFinchConnectInitialized = false;
     };
-  }, [
-    optionsMergedWithDefaults.onClose,
-    optionsMergedWithDefaults.onError,
-    optionsMergedWithDefaults.onSuccess,
-  ]);
+  }, [initializeArgs.onClose, initializeArgs.onError, initializeArgs.onSuccess]);
 
   return {
     open,
